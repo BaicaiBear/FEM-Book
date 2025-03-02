@@ -52,3 +52,28 @@ def solvedr():
     print('\nreaction f =', f_E)
     
     return f_E
+
+def solvepf(beta=1e16):
+    """
+    Set punishment function and solve the system of equations
+        
+    Returns:
+        f_E : (numpy.array(nd,1)) Reaction force vector
+    """
+    nd = model.nd; neq=model.neq
+    K = model.K.copy()
+    f = model.f.copy()
+    for i in range(nd):
+        K[i,i] = beta
+        f[i] = beta*model.d[i]
+    # a node cannot have force and displacement confinement at the same time
+    # solve for d
+    d = np.linalg.solve(K, f)
+    model.d = d
+    # compute the reaction r
+    f = K@d
+    # write to the workspace
+    print('\nsolution d');  print(model.d.T)
+    print('\nreaction f =', f)
+
+    return f

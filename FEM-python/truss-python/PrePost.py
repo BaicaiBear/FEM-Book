@@ -215,5 +215,3 @@ def plot_deformed_truss(alpha=1.0):
     print("No. of Elements  {0}".format(model.nel))
     print("No. of Nodes     {0}".format(model.nnp))
     print("No. of Equations {0}".format(model.neq))
-
-plot_deformed_truss(alpha=1.0)
