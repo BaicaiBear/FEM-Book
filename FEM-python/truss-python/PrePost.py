@@ -115,6 +115,7 @@ def plottruss():
         plt.title("Truss Plot")
         plt.xlabel(r"$x$")
         plt.ylabel(r"$y$")
+        plt.gca().set_aspect('equal', adjustable='box')
         plt.savefig("truss.pdf")
 
         # Convert matplotlib figures into PGFPlots figures stored in a Tikz file, 
@@ -129,7 +130,6 @@ def plottruss():
     print("No. of Elements  {0}".format(model.nel))
     print("No. of Nodes     {0}".format(model.nnp))
     print("No. of Equations {0}".format(model.neq))
-
 
 def print_stress():
     '''
@@ -161,4 +161,59 @@ def print_stress():
                              problem is invalid".format(model.ndof))
 
         print("{0}\t\t\t{1}".format(e+1, model.stress[e]))
+
+
+def plot_deformed_truss(alpha=1.0):
+    '''
+    plot the deformed truss
+    '''
+    if model.plot_truss == "yes":
+        if model.ndof == 1:
+            for i in range(model.nel):
+                XX = np.array([model.x[model.IEN[i, 0]-1] + alpha * model.d[model.IEN[i, 0]-1],
+                                model.x[model.IEN[i, 1]-1] + alpha * model.d[model.IEN[i, 1]-1]])
+                YY = np.array([0.0, 0.0])
+                plt.plot(XX, YY, "red")
+
+                if model.plot_node == "yes":
+                    plt.text(XX[0], YY[0], str(model.IEN[i, 0]))
+                    plt.text(XX[1], YY[1], str(model.IEN[i, 1]))
+        elif model.ndof == 2:
+            for i in range(model.nel):
+                XX = np.array([model.x[model.IEN[i, 0]-1] + alpha * model.d[2*(model.IEN[i, 0]-1)],
+                                model.x[model.IEN[i, 1]-1] + alpha * model.d[2*(model.IEN[i, 1]-1)]])
+                YY = np.array([model.y[model.IEN[i, 0]-1] + alpha * model.d[2*(model.IEN[i, 0]-1)+1],
+                                model.y[model.IEN[i, 1]-1] + alpha * model.d[2*(model.IEN[i, 1]-1)+1]])
+                plt.plot(XX, YY, "red")
+
+                if model.plot_node == "yes":
+                    plt.text(XX[0], YY[0], str(model.IEN[i, 0]))
+                    plt.text(XX[1], YY[1], str(model.IEN[i, 1]))
+        elif model.ndof == 3:
+            # insert your code here for 3D
+            # ...
+            pass # delete or comment this line after your implementation for 3D
+        else:
+            raise ValueError("The dimension (ndof = {0}) given for the \
+                                plot_deformed_truss is invalid".format(model.ndof))
         
+        plt.title("Deformed Truss Plot")
+        plt.xlabel(r"$x$")
+        plt.ylabel(r"$y$")
+        plt.gca().set_aspect('equal', adjustable='box')
+        plt.savefig("deformed_truss.pdf")
+
+        # Convert matplotlib figures into PGFPlots figures stored in a Tikz file, 
+        # which can be added into your LaTex source code by "\input{deformed_fe_plot.tex}"
+        if model.plot_tex == "yes": 
+            import tikzplotlib
+            tikzplotlib.clean_figure()
+            tikzplotlib.save("deformed_fe_plot.tex")
+    
+    print("\tDeformed 2D Truss Params \n")
+    print(model.Title + "\n")
+    print("No. of Elements  {0}".format(model.nel))
+    print("No. of Nodes     {0}".format(model.nnp))
+    print("No. of Equations {0}".format(model.neq))
+
+plot_deformed_truss(alpha=1.0)
