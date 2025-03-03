@@ -43,9 +43,31 @@ def TrussElem(e):
                              [-c_c, -c_s, c_c, c_s],
                              [-c_s, -s_s, c_s, s_s]])
     elif model.ndof == 3:
+        IENe = model.IEN[e] - 1
+        xe = model.x[IENe]
+        ye = model.y[IENe]
+        ze = model.z[IENe]
+        l = model.leng[e]
+        s_x = (xe[1] - xe[0]) / l
+        s_y = (ye[1] - ye[0]) / l
+        s_z = (ze[1] - ze[0]) / l
+
+        s_xx = s_x * s_x
+        s_yy = s_y * s_y
+        s_zz = s_z * s_z
+        s_xy = s_x * s_y
+        s_xz = s_x * s_z
+        s_yz = s_y * s_z
+
+        ke = const * np.array([[s_xx, s_xy, s_xz, -s_xx, -s_xy, -s_xz],
+                               [s_xy, s_yy, s_yz, -s_xy, -s_yy, -s_yz],
+                               [s_xz, s_yz, s_zz, -s_xz, -s_yz, -s_zz],
+                               [-s_xx, -s_xy, -s_xz, s_xx, s_xy, s_xz],
+                               [-s_xy, -s_yy, -s_yz, s_xy, s_yy, s_yz],
+                               [-s_xz, -s_yz, -s_zz, s_xz, s_yz, s_zz]])
         # insert your code here for 3D
         # ...
-        pass # delete or comment this line after your implementation for 3D
+        # pass # delete or comment this line after your implementation for 3D
     else:
         raise ValueError("The dimension (ndof = {0}) given for the problem \
                          is invalid".format(model.ndof))

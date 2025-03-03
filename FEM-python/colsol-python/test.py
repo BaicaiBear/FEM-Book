@@ -13,7 +13,7 @@ import numpy as np
 from colsol import colsol
 
 # Read in equations from JSON file
-with open('Example_n_5.json') as f_obj:
+with open('2-8.json') as f_obj:
         Equations = json.load(f_obj)
 
 n = Equations['n']    # Number of equations

@@ -41,6 +41,7 @@ def create_model_json(DataFile):
     # define the mesh
     model.x = np.array(FEData['x'])
     model.y = np.array(FEData['y'])  
+    model.z = np.array(FEData['z']) if model.nsd == 3 else None
     model.IEN = np.array(FEData['IEN'], dtype=int)
     model.LM = np.zeros((model.nen*model.ndof, model.nel), dtype=int)
     set_LM()
@@ -105,9 +106,18 @@ def plottruss():
                     plt.text(XX[0], YY[0], str(model.IEN[i, 0]))
                     plt.text(XX[1], YY[1], str(model.IEN[i, 1]))
         elif model.ndof == 3:
+            for i in range(model.nel):
+                XX = np.array([model.x[model.IEN[i, 0]-1], model.x[model.IEN[i, 1]-1]])
+                YY = np.array([model.y[model.IEN[i, 0]-1], model.y[model.IEN[i, 1]-1]])
+                ZZ = np.array([model.z[model.IEN[i, 0]-1], model.z[model.IEN[i, 1]-1]])
+                plt.plot(XX, YY, "blue")
+
+                if model.plot_node == "yes":
+                    plt.text(XX[0], YY[0], str(model.IEN[i, 0]))
+                    plt.text(XX[1], YY[1], str(model.IEN[i, 1]))
             # insert your code here for 3D
             # ...
-            pass # delete or comment this line after your implementation for 3D
+            # pass # delete or comment this line after your implementation for 3D
         else:
             raise ValueError("The dimension (ndof = {0}) given for the \
                              plottruss is invalid".format(model.ndof))
@@ -153,9 +163,18 @@ def print_stress():
             c = (xe[1] - xe[0])/model.leng[e]
             model.stress[e] = const*(np.array([-c, -s, c, s])@de)
         elif model.ndof == 3:
+            IENe = model.IEN[e] - 1
+            xe = model.x[IENe]
+            ye = model.y[IENe]
+            ze = model.z[IENe]
+            l = model.leng[e]
+            c1 = (xe[1] - xe[0]) / l
+            c2 = (ye[1] - ye[0]) / l
+            c3 = (ze[1] - ze[0]) / l
+            model.stress[e] = const * (np.array([-c1, -c2, -c3, c1, c2, c3]) @ de)
             # insert your code here for 3D
             # ...
-            pass # delete or comment this line after your implementation for 3D
+            # pass # delete or comment this line after your implementation for 3D
         else:
             raise ValueError("The dimension (ndof = {0}) given for the \
                              problem is invalid".format(model.ndof))
@@ -190,9 +209,21 @@ def plot_deformed_truss(alpha=1.0):
                     plt.text(XX[0], YY[0], str(model.IEN[i, 0]))
                     plt.text(XX[1], YY[1], str(model.IEN[i, 1]))
         elif model.ndof == 3:
+            for i in range(model.nel):
+                XX = np.array([model.x[model.IEN[i, 0]-1] + alpha * model.d[3*(model.IEN[i, 0]-1)],
+                               model.x[model.IEN[i, 1]-1] + alpha * model.d[3*(model.IEN[i, 1]-1)]])
+                YY = np.array([model.y[model.IEN[i, 0]-1] + alpha * model.d[3*(model.IEN[i, 0]-1)+1],
+                               model.y[model.IEN[i, 1]-1] + alpha * model.d[3*(model.IEN[i, 1]-1)+1]])
+                ZZ = np.array([model.z[model.IEN[i, 0]-1] + alpha * model.d[3*(model.IEN[i, 0]-1)+2],
+                               model.z[model.IEN[i, 1]-1] + alpha * model.d[3*(model.IEN[i, 1]-1)+2]])
+                plt.plot(XX, YY, "red")
+
+                if model.plot_node == "yes":
+                    plt.text(XX[0], YY[0], str(model.IEN[i, 0]))
+                    plt.text(XX[1], YY[1], str(model.IEN[i, 1]))
             # insert your code here for 3D
             # ...
-            pass # delete or comment this line after your implementation for 3D
+            # pass # delete or comment this line after your implementation for 3D
         else:
             raise ValueError("The dimension (ndof = {0}) given for the \
                                 plot_deformed_truss is invalid".format(model.ndof))
