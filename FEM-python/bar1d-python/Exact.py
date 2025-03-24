@@ -116,6 +116,27 @@ def ExactSolution_ConcentratedForce(ax1, ax2):
     # plot stress
     ax2.plot(np.append(xa, xb), np.append(ya, yb), '--r', label='Exact')
 
+def ExactSolution_HeatConductionBar(ax1, ax2):
+    """
+    Plots the exact temperature distribution of a heat conduction bar in axes ax1
+
+    Args:
+        ax1 : axis to draw temperature distribution
+        ax2 : axis to draw heat flux distribution
+    """
+    xx = np.arange(0, 20, 0.1)
+
+    # exact temperature for a heat conduction bar
+    Te = -10*xx**2 + 400*xx
+
+    # plot temperature
+    ax1.plot(xx, Te, '--r', label='Exact')
+
+    # exact heat flux
+    qe = -100*xx + 2000
+
+    # plot heat flux
+    ax2.plot(xx, qe, '--r', label='Exact')
 
 def ErrorNorm_CompressionBar():
     """ 
@@ -297,3 +318,43 @@ def ErrorNorm_ConcentratedForce(flag):
           % (2 / model.nel, L2Norm, L2Norm / L2NormEx, EnNorm, EnNorm / EnNormEx))
 
     return 2*l / model.nel, L2Norm, EnNorm
+
+def ErrorNorm_HeatConductionBar():
+    """
+    Calculate and print the error norm (L2 norm) of the heat
+    conduction bar for convergence study
+    """
+    ngp = 3
+    [w, gp] = gauss(ngp)    # extract Gauss points and weights
+    
+    L2Norm = 0
+    L2NormEx = 0
+    
+    for e in range(model.nel):
+        
+        Te = model.d[model.LM[:,e]-1] # extract element nodal temperatures
+        IENe = model.IEN[:,e]-1       # extract local connectivity information
+        xe = model.x[IENe]            # extract element x coordinates
+        J = (xe[-1] - xe[0])/2        # compute Jacobian
+        
+        for i in range(ngp):
+            xt = 0.5*(xe[0]+xe[-1])+J*gp[i]  # Gauss points in physical coordinates
+            
+            N = Nmatrix1D(xt,xe)     # shape functions matrix
+            
+            Th  = N@Te               # temperature at gauss point
+            Tex = -10*xt**2 + 400*xt # Exact temperature
+            L2Norm += J*w[i]*(Tex - Th)**2
+            L2NormEx += J*w[i]*(Tex)**2
+    
+    L2Norm = sqrt(L2Norm)
+    L2NormEx = sqrt(L2NormEx)
+    
+    # print error norms
+    print('\nError norms')
+    print('%13s %13s %13s'
+          %('h','L2Norm','L2NormRel'))
+    print('%13.6E %13.6E %13.6E\n'
+          %(20/model.nel, L2Norm, L2Norm/L2NormEx))
+    
+    return 20/model.nel, L2Norm

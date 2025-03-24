@@ -18,7 +18,7 @@ import tikzplotlib
 import FEData as model
 from utitls import gauss
 from Exact import ExactSolution_TaperedBar, ExactSolution_CompressionBar, \
-     ExactSolution_ConcentratedForce
+     ExactSolution_ConcentratedForce, ExactSolution_HeatConductionBar
 from Bar1DElem import Nmatrix1D, Bmatrix1D
 
 
@@ -75,8 +75,8 @@ def create_model_json(DataFile):
     model.y = np.array(FEData['y'])  
     model.IEN = np.array(FEData['IEN'])
 
-    model.ID  = np.zeros(model.neq,np.int)
-    model.LM  = np.zeros((model.nen,model.nel),np.int)   
+    model.ID  = np.zeros(model.neq,int)
+    model.LM  = np.zeros((model.nen,model.nel),int)   
         
     if 'Exact' in FEData:
         model.Exact = FEData['Exact']
@@ -241,6 +241,8 @@ def postprocessor():
         ExactSolution_CompressionBar(ax1,ax2)
     elif model.Exact == "ConcentratedForce":
         ExactSolution_ConcentratedForce(ax1, ax2)
+    elif model.Exact == "HeatConductionBar":
+        ExactSolution_HeatConductionBar(ax1, ax2)
     elif model.Exact != None:
         print('Error: Exact solution for %s is not available'%(model.Exact))
 
